@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "../ui/card";
 
-export default function LatestProductsLoader() {
+const LatestProductsLoader: React.FC = () => {
   const loaderArray = Array.from({ length: 8 });
 
   return (
@@ -20,14 +20,13 @@ export default function LatestProductsLoader() {
             <CardTitle>
               <Skeleton className="h-4 w-[150px]" />
             </CardTitle>
-
             <CardDescription>
               <Skeleton className="h-4 w-[100px]" />
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="w-48 lg:w-60">
-              <Skeleton className=" aspect-square overflow-hidden rounded-xl " />
+              <Skeleton className="aspect-square overflow-hidden rounded-xl" />
             </div>
           </CardContent>
           <CardFooter className="flex justify-between gap-6 items-center">
@@ -38,4 +37,7 @@ export default function LatestProductsLoader() {
       ))}
     </div>
   );
-}
+};
+
+export default LatestProductsLoader;
+
