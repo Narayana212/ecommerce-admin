@@ -1,4 +1,6 @@
 "use client";
+
+import { FC, useState } from "react";
 import {
   Form,
   FormControl,
@@ -7,7 +9,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { FC, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,10 +17,7 @@ import ImageUpload from "@/components/ui/image-upload";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import {sendEmail} from "../../../actions/send-email"
-
-
-interface AddProductPageProps {}
+import { sendEmail } from "../../../actions/send-email";
 
 const FormSchema = z.object({
   price: z.number().positive("Value must be a positive number"),
@@ -45,55 +43,58 @@ const defaultValues = {
   description: "",
 };
 
-
-
-const AddProductPage: FC<AddProductPageProps> = () => {
-
+const AddProductPage: FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
-  const router=useRouter()
+  const router = useRouter();
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues,
   });
-  async function onSubmit(productData: z.infer<typeof FormSchema>) {
+
+  const onSubmit = async (productData: z.infer<typeof FormSchema>) => {
     try {
-      setLoading(true)
-      const response=await fetch("https://admin-dashboard-seven-bay.vercel.app/api/requestedProducts",{
-        method: "POST",
-        body:JSON.stringify(productData)
-  
-      })
-      const data = await response.json();
-      if(response.ok){
-        sendEmail(productData.name,productData.email)
-        
-        router.push("/")
+      setLoading(true);
+      const response = await fetch(
+        "https://admin-dashboard-seven-bay.vercel.app/api/requestedProducts",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(productData),
+        }
+      );
+
+      if (response.ok) {
+        sendEmail(productData.name, productData.email);
+        router.push("/");
       }
     } catch (error: any) {
-      console.log(error.message);
-    }finally{
-      setLoading(false)
-
+      console.error("Error:", error.message);
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
-
-  
   return (
     <div className="w-screen h-auto flex items-center justify-center mt-5">
-      
-      <Form {...form} >
-        <form 
+      <Form {...form}>
+        <form
           className="w-2/3 space-y-6"
           onSubmit={form.handleSubmit(onSubmit)}
         >
-          <FormField 
+          <FormField
             control={form.control}
             name="email"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Email</FormLabel>
-                <Input placeholder="test@test.com" disabled={loading} {...field} />
+                <Input
+                  placeholder="test@test.com"
+                  disabled={loading}
+                  {...field}
+                />
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -105,25 +106,28 @@ const AddProductPage: FC<AddProductPageProps> = () => {
                 <FormLabel>Phone Number</FormLabel>
                 <Input
                   placeholder="999999999"
-                  {...field}
                   disabled={loading}
-                 
+                  {...field}
                 />
+                <FormMessage />
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="name"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Name of Product</FormLabel>
-                <Input  disabled={loading} placeholder="Mama Earth..." {...field} />
+                <Input
+                  placeholder="Item..."
+                  disabled={loading}
+                  {...field}
+                />
+                <FormMessage />
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="price"
@@ -133,12 +137,12 @@ const AddProductPage: FC<AddProductPageProps> = () => {
                 <FormControl>
                   <Input
                     type="number"
-                    {...field}
-                    onChange={(e) => {
-                      field.onChange(parseFloat(e.target.value));
-                    }}
                     placeholder="in Rupees"
                     disabled={loading}
+                    {...field}
+                    onChange={(e) =>
+                      field.onChange(parseFloat(e.target.value))
+                    }
                   />
                 </FormControl>
                 <FormMessage />
@@ -159,9 +163,9 @@ const AddProductPage: FC<AddProductPageProps> = () => {
                       field.onChange([...field.value, { url }])
                     }
                     onRemove={(url) =>
-                      field.onChange([
-                        ...field.value.filter((current) => current.url !== url),
-                      ])
+                      field.onChange(
+                        field.value.filter((current) => current.url !== url)
+                      )
                     }
                   />
                 </FormControl>
@@ -169,7 +173,6 @@ const AddProductPage: FC<AddProductPageProps> = () => {
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="description"
@@ -177,18 +180,20 @@ const AddProductPage: FC<AddProductPageProps> = () => {
               <FormItem>
                 <FormLabel>Description</FormLabel>
                 <FormControl>
-                  <Textarea  disabled={loading} {...field} />
+                  <Textarea disabled={loading} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <Button type="submit" disabled={loading}>Submit</Button>
+          <Button type="submit" disabled={loading}>
+            Submit
+          </Button>
         </form>
       </Form>
-      
     </div>
   );
 };
 
 export default AddProductPage;
+
